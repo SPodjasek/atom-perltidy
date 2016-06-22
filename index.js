@@ -1,4 +1,5 @@
 var fs    = require('fs'),
+    path  = require('path'),
     spawn = require('child_process').spawn;
 
 module.exports = {
@@ -7,18 +8,27 @@ module.exports = {
     binary: {
       type: "string",
       default: "/usr/local/bin/perltidy"
+    },
+    options: {
+      type: "array",
+      default: ["--dpro=.../.perltidy"],
+      items: {
+        type: "string"
+      }
     }
   },
 
   activate: function() {
     atom.commands.add('atom-workspace', 'perltidy:tidy', function() {
 
-      var editor = atom.workspace.getActiveTextEditor();
-      var path   = atom.config.get('perltidy.binary');
+      var editor  = atom.workspace.getActiveTextEditor();
+      var cwd     = path.dirname(editor.getPath());
+      var path    = atom.config.get('perltidy.binary');
+      var options = atom.config.get('perltidy.options');
 
       if (fs.existsSync(path)) {
         var position = editor.getCursorScreenPosition();
-        perlTidy(path, editor.getText(), function (perl) {
+        perlTidy(path, cwd, options, editor.getText(), function (perl) {
           editor.transact(function() {
             editor.setText(perl);
             editor.getLastCursor().setScreenPosition(position);
@@ -33,10 +43,10 @@ module.exports = {
   }
 };
 
-function perlTidy(path, before, cb) {
+function perlTidy(path, cwd, options, before, cb) {
 
   var after = '';
-  var perltidy = spawn(path);
+  var perltidy = spawn(path, [options], { cwd: cwd });
   perltidy.stdin.setEncoding  = 'utf-8';
   perltidy.stdout.setEncoding = 'utf-8';
   perltidy.stdin.end(before);
