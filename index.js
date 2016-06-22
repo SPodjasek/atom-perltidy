@@ -11,7 +11,7 @@ module.exports = {
     },
     options: {
       type: "array",
-      default: ["--dpro=.../.perltidy"],
+      default: ["--pro=.../.perltidyrc"],
       items: {
         type: "string"
       }
@@ -23,12 +23,12 @@ module.exports = {
 
       var editor  = atom.workspace.getActiveTextEditor();
       var cwd     = path.dirname(editor.getPath());
-      var path    = atom.config.get('perltidy.binary');
+      var binary  = atom.config.get('perltidy.binary');
       var options = atom.config.get('perltidy.options');
 
-      if (fs.existsSync(path)) {
+      if (fs.existsSync(binary)) {
         var position = editor.getCursorScreenPosition();
-        perlTidy(path, cwd, options, editor.getText(), function (perl) {
+        perlTidy(binary, cwd, options, editor.getText(), function (perl) {
           editor.transact(function() {
             editor.setText(perl);
             editor.getLastCursor().setScreenPosition(position);
@@ -43,10 +43,10 @@ module.exports = {
   }
 };
 
-function perlTidy(path, cwd, options, before, cb) {
+function perlTidy(binary, cwd, options, before, cb) {
 
   var after = '';
-  var perltidy = spawn(path, [options], { cwd: cwd });
+  var perltidy = spawn(binary, options, { cwd: cwd, stdio: 'pipe' });
   perltidy.stdin.setEncoding  = 'utf-8';
   perltidy.stdout.setEncoding = 'utf-8';
   perltidy.stdin.end(before);
