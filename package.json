@@ -1,7 +1,7 @@
 {
   "name": "perltidy",
   "main": "./index.js",
-  "version": "2.2.0a",
+  "version": "2.2.1",
   "description": "Perltidy for Atom.",
   "repository": "https://github.com/SPodjasek/atom-perltidy",
   "engines": {
